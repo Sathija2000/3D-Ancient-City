@@ -67,7 +67,7 @@ void drawAxes() {
 }
 
 // Number of textures
-#define NUM_TEXTURES 3
+#define NUM_TEXTURES 4
 
 // Global variables for texture IDs
 GLuint textureIDs[NUM_TEXTURES];
@@ -76,7 +76,8 @@ GLuint textureIDs[NUM_TEXTURES];
 const char* textureFiles[NUM_TEXTURES] = {
 	"textures/roundWalls.jpg",
 	"textures/roof.jpg",
-	"textures/floor.jpg"
+	"textures/floor.jpg",
+	"textures/road.jpg"
 };
 
 // Function to load textures
@@ -116,7 +117,8 @@ void loadTextures() {
 
 
 void init(void) {
-	glClearColor(0.0, 0.8, 0.8, 1.0);
+	//glClearColor(0.0, 0.8, 0.8, 1.0);
+	glClearColor(0.11f, 0.42f, 0.63f, 1.0f);
 	glClearDepth(1.0);
 	glEnable(GL_DEPTH_TEST);
 	loadTextures();
@@ -240,9 +242,9 @@ void roofWithPediments() {
 }
 
 
-void createFloor(float width, float length) {
+void floorOrRoad(float width, float length, int texture) {
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureIDs[2]); // Use the texture ID for the floor texture
+	glBindTexture(GL_TEXTURE_2D, textureIDs[texture]); // Use the texture ID for the floor texture
 
 	glColor3f(1.0f, 1.0f, 1.0f); // Base color for the texture
 
@@ -260,9 +262,9 @@ void createFloor(float width, float length) {
 }
 
 
-void createSquareBase(float size, float height) {
+void createSquareBase(float size, float height, int i) {
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureIDs[0]); // Use a texture for the base
+	glBindTexture(GL_TEXTURE_2D, textureIDs[i]); // Use a texture for the base
 
 	glColor3f(1.0f, 1.0f, 1.0f); // Set base color
 
@@ -309,11 +311,17 @@ void createSquareBase(float size, float height) {
 	glDisable(GL_TEXTURE_2D);
 }
 
-//void mainHallStayer() {
-//
-//
-//
-//}
+void mainHallStayer(float size, float height, int i) {
+	
+	glTranslatef(0, 0, 0);
+	createSquareBase(size, height, i);
+	glTranslatef(0, height, -0.5);
+	createSquareBase(size, height, i);
+	glTranslatef(0, height, -1);
+	createSquareBase(size, height, i);
+	glTranslatef(0, height, -1.5);
+	createSquareBase(size, height, i);
+}
 
 
 void mainHall() {
@@ -335,7 +343,7 @@ void mainHall() {
 			// Draw the round wall
 			roundWall();
 			glTranslatef(0, -7, 0);
-			createSquareBase(2, 1);
+			createSquareBase(2, 1, 0);
 
 			glPopMatrix();
 		}
@@ -346,8 +354,14 @@ void mainHall() {
 
 	// Draw the floor 
 	glTranslatef(0, -7, -20);
-	createFloor(18, 40);
+	floorOrRoad(18, 40, 2);
+
+	// Draw the stayers
+	glTranslatef(0, -4, 15);
+	mainHallStayer(18,1, 2);
+
 }
+
 
 
 
@@ -457,7 +471,27 @@ void mainHall() {
 //	glMateriali(GL_FRONT, GL_SHININESS, Shine);
 //}
 
+void roads() {
 
+	// Draw the Road1 
+	glTranslatef(0, -3, 10);
+	floorOrRoad(9, 40, 3);
+
+	// Draw the Road1 
+	glTranslatef(20, 0, 20);
+	glRotatef(80, 0, 1, 0);
+	floorOrRoad(9, 50, 3);
+}
+
+
+void city() {
+
+	glTranslatef(-12, 0, 0);
+	glRotatef(50, 0, 1, 0);
+	mainHall();
+
+	roads();
+}
 
 
 
@@ -469,7 +503,7 @@ void display(void) {
 
 	glPushMatrix();
 	// camera orientation (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
-	gluLookAt(0.0, 0.0 + camY, 15.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 0.0 + camY, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 	// move the scene (all the rendered environment) using keyboard keys
 	glTranslatef(sceTX, sceTY, sceTZ);
@@ -488,10 +522,12 @@ void display(void) {
 	//glScalef(1.0, 1.0, 1.0);
 	//roundWall();
 	//roundWallsGroup();
-	mainHall();
+	//mainHall();
 	//cube();
 	//createFloor(10);
 	//createSquareBase(12,5);
+	//mainHallStayer(16,2);
+	city();
 
 	glPopMatrix();
 	glutSwapBuffers();
